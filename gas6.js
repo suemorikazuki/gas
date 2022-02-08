@@ -7,11 +7,7 @@ const STATUS_COL = 9;
 const CHANGE_DATE_COL = 12;
 const DELETE_COL = 13;
 const STATUS = ['未対応', '対応中', '対応済み', '完了'];
-// slack連携
-const webhookUrl = 'https://hooks.slack.com/services/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';
-const username = 'username';  // 通知時に表示されるユーザー名
-const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
-let message = 'test';  // 投稿メッセージ
+// STATUS辞書にしない？
 
 function getSheet(sheetName) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().  getSheetByName(sheetName);
@@ -57,7 +53,19 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi()
   const menu = ui.createMenu("メニュー");
   menu.addItem("実行","reflectChange");
+  menu.addItem("新規タスク","関数名");
   menu.addToUi();
+}
+
+function addTask() {
+  const sheet = getSheet('プロジェクト_中村')
+  let lastRow = sheet.getLastRow() - 1
+  let copyRow = sheet.getLastRow()
+  copy = sheet.getRange(lastRow, 3, lastRow, 14).copyTo(sheet.getRange(copyRow, 3))
+}
+
+function cleanValue(col) {
+  
 }
 
 function reflectChange() {
@@ -65,7 +73,7 @@ function reflectChange() {
   const lastRow = sheet.getLastRow();
   const deleteCells = [];
 
-  for (let i = 1; i <= lastRow; i++) {
+  for (let i = 1;i <= lastRow; i++) {
     const updateRange = sheet.getRange(i, UPDATE_COL);
     const deleteRange = sheet.getRange(i, DALETECOL);
     
@@ -126,7 +134,7 @@ function showLimit() {
   }
 }
 
-function changeColor( row, col , color) {
+function changeColor( row, col , color ) {
   let sheet = getSheet('プロジェクト_中村')
   sheet.getRange(row, col).setFontColor( color )
 }
@@ -137,14 +145,19 @@ function getCellValue( row, col) {
   return cellValue
 }
 
-function addString(row, col) {
-  let pointedValue = getCellValue(row, col) +  '●'
+function addString() {
+  let pointedValue =  '●' + getCellValue(7,7) 
   return pointedValue
 }
 
-// slack連携
 
-function slack() {
+// slack連携
+const webhookUrl = 'https://hooks.slack.com/services/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';
+const username = 'username';  // 通知時に表示されるユーザー名
+const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
+let message = 'test';  // 投稿メッセージ
+
+function myFunction() {
   let jsonData =
   {
      "username" : username,
