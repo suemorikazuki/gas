@@ -60,7 +60,7 @@ function reflectChange() {
   const lastRow = sheet.getLastRow();
   const deleteCells = [];
 
-  for (let i = 1;i <= lastRow; i++) {
+  for (let i = 1; i <= lastRow; i++) {
     const updateRange = sheet.getRange(i, UPDATE_COL);
     const deleteRange = sheet.getRange(i, DALETECOL);
     
@@ -135,4 +135,29 @@ function getCellValue( row, col) {
 function addString(row, col) {
   let pointedValue = getCellValue(row, col) +  '●'
   return pointedValue
+}
+
+// slack連携
+const webhookUrl = 'https://hooks.slack.com/services/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';
+const username = 'username';  // 通知時に表示されるユーザー名
+const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
+let message = 'test';  // 投稿メッセージ
+
+function myFunction() {
+  let jsonData =
+  {
+     "username" : username,
+     "icon_emoji": icon,
+     "text" : message
+  };
+  let payload = JSON.stringify(jsonData);
+
+  let options =
+  {
+    "method" : "post",
+    "contentType" : "application/json",
+    "payload" : payload
+  };
+
+  UrlFetchApp.fetch(webhookUrl, options);
 }
