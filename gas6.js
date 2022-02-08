@@ -1,26 +1,15 @@
-const UPDATECOL = 3;
-const STRINGCOL = 4;
-const MEMBERCOL = 6;
-const COMPLETEDATECOL = 7;
-const LIMITDATECOL =8;
-const STATUSCOL = 9;
-const CHANGEDATECOL = 12;
-const DELETECOL = 13;
+const UPDATE_COL = 3;
+const STRING_COL = 4;
+const MEMBER_COL = 6;
+const COMPLETE_DATE_COL = 7;
+const LIMIT_DATE_COL =8;
+const STATUS_COL = 9;
+const CHANGE_DATE_COL = 12;
+const DELETE_COL = 13;
 const STATUS = ['未対応', '対応中', '対応済み', '完了'];
 
-// function showDialog() {
-//   　var output = HtmlService.createTemplateFromFile('index');
-//   　var ss = SpreadsheetApp.getActiveSpreadsheet();
-//   　var html = output.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME)
-//              .setWidth(500)
-//              .setHeight(300)
-//              .setTitle('モーダルウィンドウテスト');
-//   　ss.show(html);    //メッセージボックスとしてを表示する
-// }
-
-
 function getSheet(sheetName) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().  getSheetByName(sheetName);
   return sheet;
 }
 
@@ -31,8 +20,8 @@ function getTaskCell() {
   for (let i = 7;i <= lastRow; i++) {
     const value = sheet.getRange(i, stringCol).getValue();
     if (value != '') {
-      insertMemberList(i, MEMBERCOL, sheet);
-      insertStatusList(i, STATUSCOL, sheet);
+      insertMemberList(i, MEMBER_COL, sheet);
+      insertStatusList(i, STATUS_COL, sheet);
     }
   }
 }
@@ -72,7 +61,7 @@ function reflectChange() {
   const deleteCells = [];
 
   for (let i = 1;i <= lastRow; i++) {
-    const updateRange = sheet.getRange(i, UPDATECOL);
+    const updateRange = sheet.getRange(i, UPDATE_COL);
     const deleteRange = sheet.getRange(i, DALETECOL);
     
     if (deleteRange.getValue() == true) {
@@ -87,7 +76,7 @@ function reflectChange() {
 }
 
 function changeStatusColor(row, sheet) {
-  const value = sheet.getRange(row, STATUSCOL).getValue();
+  const value = sheet.getRange(row, STATUS_COL).getValue();
   const lastCol = sheet.getLastColumn();
 
   if (value == STATUS[0]) {
@@ -101,7 +90,7 @@ function changeStatusColor(row, sheet) {
   }
 }
 
-function deleteTask(deleteCells, sheet) {
+function deleteTask( deleteCells, sheet ) {
   deleteCells.forEach(row => {
       sheet.deleteRows(row);
   })
@@ -111,7 +100,7 @@ function changeDate(changeDateRow, sheet) {
   const now = new Date();
   const month = now.getMonth() + 1;
   const date = now.getDate();
-  sheet.getRange(changeDateRow, CHANGEDATECOL).setValue(month + '/' + date);
+  sheet.getRange( changeDateRow, CHANGE_DATE_COL ).setValue( month + '/' + date_ );
 }
 
 function isntBlank(val) {
@@ -121,15 +110,23 @@ function isntBlank(val) {
 function showLimit() {
   const sheet = getSheet('プロジェクト_中村');
   // const sheet = SpreadsheetApp.getActiveSheet()
-  const val = sheet.getRange(1,COMPLETEDATECOL, sheet.getLastRow()).getValues();
+  const val = sheet.getRange( 1, COMPLETE_DATE_COL, sheet.getLastRow() ).ge_tVal_ues();
   const values = val.filter(isntBlank);
   for (let i = 0; i < values.length; i++) {
-    console.log(values[i].getFullYear())
     // const target = new Date(values.getFullYear(), Val.getMonth(), Val.getDate())
     const now = new Date()
-    console.log(now.getFullYear())
     // const today = new Date(now.getFullYear(),now.getMonth(),now.getDate())
     // console.log((target - today)/60*60*24)
     // return (target - today)/60*60*24
   }
+}
+
+function changeColor( row, col , color) {
+  let sheet = getSheet('プロジェクト_中村')
+  
+  sheet.getRange(row, col).setFontColor( color )
+}
+
+function test() {
+  changeColor(7, 7, "red")
 }
