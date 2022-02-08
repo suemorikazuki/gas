@@ -7,6 +7,11 @@ const STATUS_COL = 9;
 const CHANGE_DATE_COL = 12;
 const DELETE_COL = 13;
 const STATUS = ['未対応', '対応中', '対応済み', '完了'];
+// slack連携
+const webhookUrl = 'https://hooks.slack.com/services/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';
+const username = 'username';  // 通知時に表示されるユーザー名
+const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
+let message = 'test';  // 投稿メッセージ
 
 function getSheet(sheetName) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().  getSheetByName(sheetName);
@@ -138,12 +143,8 @@ function addString(row, col) {
 }
 
 // slack連携
-const webhookUrl = 'https://hooks.slack.com/services/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';
-const username = 'username';  // 通知時に表示されるユーザー名
-const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
-let message = 'test';  // 投稿メッセージ
 
-function myFunction() {
+function slack() {
   let jsonData =
   {
      "username" : username,
