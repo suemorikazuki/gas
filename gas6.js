@@ -53,7 +53,7 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi()
   const menu = ui.createMenu("メニュー");
   menu.addItem("実行","reflectChange");
-  menu.addItem("新規タスク","関数名");
+  menu.addItem("新規タスク","addTask");
   menu.addToUi();
 }
 
