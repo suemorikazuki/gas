@@ -57,15 +57,12 @@ function onOpen() {
   menu.addToUi();
 }
 
-function addTask() {
+function setTask() {
   const sheet = getSheet('プロジェクト_中村')
   let lastRow = sheet.getLastRow() - 1
   let copyRow = sheet.getLastRow()
-  copy = sheet.getRange(lastRow, 3, lastRow, 14).copyTo(sheet.getRange(copyRow, 3))
-}
-
-function cleanValue(col) {
-  
+  sheet.getRange(lastRow, 3, lastRow, 14).copyTo(sheet.getRange(copyRow, 3))
+  sheet.getRange(copyRow, 4, copyRow, 13).clearContent()
 }
 
 function reflectChange() {
