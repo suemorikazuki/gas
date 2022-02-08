@@ -123,7 +123,6 @@ function showLimit() {
 
 function changeColor( row, col , color) {
   let sheet = getSheet('プロジェクト_中村')
-  
   sheet.getRange(row, col).setFontColor( color )
 }
 
@@ -131,4 +130,9 @@ function getCellValue( row, col) {
   let sheet = getSheet('プロジェクト_中村')
   let cellValue = sheet.getRange(row, col).getValue()
   return cellValue
+}
+
+function addString(row, col) {
+  let pointedValue = getCellValue(row, col) +  '●'
+  return pointedValue
 }
