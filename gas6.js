@@ -127,6 +127,8 @@ function changeColor( row, col , color) {
   sheet.getRange(row, col).setFontColor( color )
 }
 
-function test() {
-  changeColor(7, 7, "red")
+function getCellValue( row, col) {
+  let sheet = getSheet('プロジェクト_中村')
+  let cellValue = sheet.getRange(row, col).getValue()
+  return cellValue
 }
