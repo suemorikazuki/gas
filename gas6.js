@@ -1,16 +1,8 @@
-const IS_UPDATE_COL = 2;
 const DATA_START = 3;
-const MEMBER_COL = 5;
-const COMPLETE_DATE_COL = 6;
-const DUE_COL =7;
 const STATUS_COL = 8;
-const CREATOR_COL = 9;
-const CREATE_DATE_COL = 10;
-const CHANGE_DATE_COL = 11;
 const IS_DELETE_COL = 12;
 const STATUS = ['未対応', '対応中', '対応済み', '完了'];
 const TASK_SHEET = 'プロジェクト_中村';
-const USER_SHEET = 'メンバー';
 
 function isString(value) {
   if (typeof value === "string" || value instanceof String) {
@@ -30,6 +22,7 @@ function getDateByString(_date){
 }
 
 function getDiffDate(i){
+  const DUE_COL =7;
   let sheet = getSheet(TASK_SHEET);
   let today = new Date(Utilities.formatDate(new Date(), "Asia/Tokyo", "MM/dd"));
   let date2 = new Date(getDateByString(sheet.getRange(i, DUE_COL).getValue()));
@@ -61,6 +54,7 @@ function getSheet(sheetName) {
 }
 
 function createMemberList() {
+  const USER_SHEET = 'メンバー';
   let memberSheet = getSheet(USER_SHEET);
   let lastRow = memberSheet.getLastRow();
   let startCol = 1;
@@ -83,6 +77,7 @@ function insertStatusList(row, col, sheet) {
 }
 
 function insertLists(row, sheet) {
+  const MEMBER_COL = 5;
   insertMemberList(row, MEMBER_COL, sheet);
   insertStatusList(row, STATUS_COL, sheet);
 }
@@ -131,6 +126,7 @@ function setStatusColor(row, sheet) {
 }
 
 function updateTask(row, sheet){
+  const CHANGE_DATE_COL = 11;
   for (let i = 1; i <= row; i++) {
     let updateRange = sheet.getRange(i, IS_UPDATE_COL);
     let isUpdateValue = updateRange.getValue();
@@ -143,6 +139,7 @@ function updateTask(row, sheet){
 }
 
 function setCreator(createRow, sheet) {
+  const CREATOR_COL = 9;
   let message = '作成者の名前を入力して下さい。';
   let creator = Browser.inputBox(message, Browser.Buttons.OK_CANCEL);
   if(creator == 'cancel'){
@@ -154,6 +151,9 @@ function setCreator(createRow, sheet) {
 }
 
 function addTask() {
+  const IS_UPDATE_COL = 2;
+  const COMPLETE_DATE_COL = 6;
+  const CREATE_DATE_COL = 10;
   let sheet = getSheet(TASK_SHEET);
   let createRow = sheet.getLastRow() + 1;
   isCreate = setCreator(createRow, sheet);
