@@ -1,4 +1,4 @@
-const TASK_SHEET = 'プロジェクト_中村'; //onOpen
+const TASK_SHEET = "プロジェクト_中村"; //onOpen
 const STATUS = {unsupported: "未対応", progress: "対応中", complete: "対応済み", finish: "完了"};
 const colors = {white: "#FFFFFF", green: "#d9ead3", blue: "#cfe2f3", gray: "#d9d9d9", red: "#F08080", yellow: "#FFFACD"};
 
@@ -47,7 +47,7 @@ function createSlackMessage() {
   notifications = setMark();
   warningTasks = notifications[0].join("、");
   attentionTasks = notifications[1].join("、");
-  message = "締め切りが過ぎているタスク：　" + warningTasks + "\n 締め切り間近なタスク：　" + attentionTasks; 
+  message = `締め切りが過ぎているタスク： ${warningTasks}\n 締め切り間近なタスク： ${attentionTasks}`; 
   
   return message;
 }
@@ -58,7 +58,7 @@ function getSheet(sheetName) {
 }
 
 function createMemberList() {
-  const USER_SHEET = 'メンバー';
+  const USER_SHEET = "メンバー";
   let memberSheet = getSheet(USER_SHEET);
   let lastRow = memberSheet.getLastRow();
   let startCol = 1;
@@ -153,9 +153,9 @@ function updateTask(row, sheet){
 
 function setCreator(createRow, sheet) {
   const CREATOR_COL = 9;
-  let message = '作成者の名前を入力して下さい。';
+  let message = "作成者の名前を入力して下さい。";
   let creator = Browser.inputBox(message, Browser.Buttons.OK_CANCEL);
-  if(creator == 'cancel'){
+  if(creator == "cancel"){
     return false;
   }else{
     sheet.getRange(createRow, CREATOR_COL).setValue(creator);
@@ -197,9 +197,9 @@ function onOpen() {
 }
 
 function slack() {
-  const webhookUrl = 'https://hooks.slack.com/services/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';
-  const username = 'username';  // 通知時に表示されるユーザー名
-  const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
+  const webhookUrl = "https://hooks.slack.com/services/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";
+  const username = "username";  // 通知時に表示されるユーザー名
+  const icon = ":hatching_chick:";  // 通知時に表示されるアイコン
   let message = createSlackMessage();  // 投稿メッセージ
   let jsonData = {"username" : username, "icon_emoji": icon, "text" : message};
   let payload = JSON.stringify(jsonData);
