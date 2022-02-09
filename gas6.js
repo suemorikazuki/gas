@@ -1,31 +1,16 @@
+const IS_UPDATE_COL = 2;
 const DATA_START = 3;
 const STATUS_COL = 8;
 const IS_DELETE_COL = 12;
-const STATUS = ['未対応', '対応中', '対応済み', '完了'];
+const STATUS = {unsupported: "未対応", progress: "対応中", complete: "対応済み", finish: "完了"};
 const TASK_SHEET = 'プロジェクト_中村';
-
-function isString(value) {
-  if (typeof value === "string" || value instanceof String) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function getDateByString(_date){
-  if(isString(_date)){
-    _date = _date.replace('⚫︎ ', '');
-  } else {
-    _date = Utilities.formatDate(new Date(_date), "Asia/Tokyo", "MM/dd");
-  }
-  return _date;
-}
+const colors = {white: "#FFFFFF", green: "#d9ead3", blue: "#cfe2f3", gray: "#d9d9d9", red: "#F08080", yellow: "#FFFACD"};
 
 function getDiffDate(i){
   const DUE_COL =7;
   let sheet = getSheet(TASK_SHEET);
-  let today = new Date(Utilities.formatDate(new Date(), "Asia/Tokyo", "MM/dd"));
-  let date2 = new Date(getDateByString(sheet.getRange(i, DUE_COL).getValue()));
+  let today = new Date();
+  let date2 = new Date(sheet.getRange(i, DUE_COL).getValue());
 
   let diffDate = (date2 - today) / (60 * 60 * 24 * 1000);
   return diffDate;
@@ -33,19 +18,35 @@ function getDiffDate(i){
 
 function setMark(){
   let sheet = getSheet(TASK_SHEET);
-  lastRow = sheet.getLastRow();
+  let lastRow = sheet.getLastRow();
+  let warning = [];
+  let attention = [];
+  
   for(let i= DATA_START; i <= lastRow; i++){
     let diffDate = getDiffDate(i);
     let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
-    let compStatus = STATUS[3];
+    let compStatus = STATUS.finish;
+    let taskName = sheet.getRange(i, DATA_START).getValue();
     if(diffDate < 1 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground("#FF3333");
+      sheet.getRange(i, DATA_START).setBackground(colors.red);
+      warning.push(taskName);
     }else if(diffDate < 3 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground("#FFFF66");
+      sheet.getRange(i, DATA_START).setBackground(colors.yellow);
+      attention.push(taskName);
     }else if(status == compStatus) {
-      sheet.getRange(i, DATA_START).setBackground("#d9d9d9");      
+      sheet.getRange(i, DATA_START).setBackground(colors.gray);      
     }  
   }
+  return [warning, attention];
+}
+
+function createSlackMessage() {
+  notifications = setMark();
+  warningTasks = notifications[0].join("、");
+  attentionTasks = notifications[1].join("、");
+  message = "締め切りが過ぎているタスク：　" + warningTasks + "\n 締め切り間近なタスク：　" + attentionTasks; 
+  
+  return message;
 }
 
 function getSheet(sheetName) {
@@ -70,8 +71,17 @@ function insertMemberList(row, col, sheet) {
   setCell.setDataValidation(memberList);
 }
 
+function getDefaultStatus() {
+  defaultStatus = [];
+  Object.values(STATUS).forEach(value => {
+	defaultStatus.push(value);
+  });
+  return defaultStatus;
+}
+
 function insertStatusList(row, col, sheet) {
-  let statusList = SpreadsheetApp.newDataValidation().requireValueInList(STATUS).build();
+  let defaultStatus = getDefaultStatus();
+  let statusList = SpreadsheetApp.newDataValidation().requireValueInList(defaultStatus).build();
   let setCell = sheet.getRange(row, col);
   setCell.setDataValidation(statusList);
 }
@@ -109,19 +119,18 @@ function deleteTask(lastRow, sheet) {
 }
 
 function setStatusColor(row, sheet) {
-  const colors = ["#FFFFFF", "#d9ead3", "#cfe2f3", "#d9d9d9"];
   let status = sheet.getRange(row, STATUS_COL).getValue();
   let lastCol = sheet.getLastColumn();
   let setColorRange = sheet.getRange(row, DATA_START, 1, lastCol);
     
-  if (status == STATUS[0]) {
-    setColorRange.setBackground(colors[0]);
-  } else if (status == STATUS[1]) {
-    setColorRange.setBackground(colors[1]);
-  } else if (status == STATUS[2]) {
-    setColorRange.setBackground(colors[2]); 
-  } else if (status == STATUS[3]) {
-    setColorRange.setBackground(colors[3]); 
+  if (status == STATUS.unsupported) {
+    setColorRange.setBackground(colors.white);
+  } else if (status == STATUS.progress) {
+    setColorRange.setBackground(colors.green);
+  } else if (status == STATUS.complete) {
+    setColorRange.setBackground(colors.blue); 
+  } else if (status == STATUS.finish) {
+    setColorRange.setBackground(colors.gray); 
   }
 }
 
@@ -151,7 +160,6 @@ function setCreator(createRow, sheet) {
 }
 
 function addTask() {
-  const IS_UPDATE_COL = 2;
   const COMPLETE_DATE_COL = 6;
   const CREATE_DATE_COL = 10;
   let sheet = getSheet(TASK_SHEET);
@@ -182,4 +190,16 @@ function onOpen() {
   menu.addItem("更新","updateSheetInfo");
   menu.addItem("新規タスク作成","addTask");
   menu.addToUi();
+}
+
+function slack() {
+  const webhookUrl = 'https://hooks.slack.com/services/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';
+  const username = 'username';  // 通知時に表示されるユーザー名
+  const icon = ':hatching_chick:';  // 通知時に表示されるアイコン
+  let message = createSlackMessage();  // 投稿メッセージ
+  let jsonData = {"username" : username, "icon_emoji": icon, "text" : message};
+  let payload = JSON.stringify(jsonData);
+  let options = {"method" : "post", "contentType" : "application/json", "payload" : payload};
+
+  UrlFetchApp.fetch(webhookUrl, options);
 }
