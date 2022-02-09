@@ -1,40 +1,43 @@
-const IS_UPDATE_COL = 2;
-const DATA_START = 3;
-const STATUS_COL = 8;
-const IS_DELETE_COL = 12;
+const TASK_SHEET = 'プロジェクト_中村'; //onOpen
 const STATUS = {unsupported: "未対応", progress: "対応中", complete: "対応済み", finish: "完了"};
-const TASK_SHEET = 'プロジェクト_中村';
 const colors = {white: "#FFFFFF", green: "#d9ead3", blue: "#cfe2f3", gray: "#d9d9d9", red: "#F08080", yellow: "#FFFACD"};
+
+const IS_UPDATE_COL = 2; //onOpen
+const STATUS_COL = 8;
+const IS_DELETE_COL = 12; //onOpen
+
+
 
 function getDiffDate(i){
   const DUE_COL =7;
   let sheet = getSheet(TASK_SHEET);
   let today = new Date();
   let date2 = new Date(sheet.getRange(i, DUE_COL).getValue());
-
+  
   let diffDate = (date2 - today) / (60 * 60 * 24 * 1000);
   return diffDate;
 }
 
 function setMark(){
+  const DATA_START_COL = 3;
   let sheet = getSheet(TASK_SHEET);
   let lastRow = sheet.getLastRow();
   let warning = [];
   let attention = [];
   
-  for(let i= DATA_START; i <= lastRow; i++){
+  for(let i= DATA_START_COL; i <= lastRow; i++){
     let diffDate = getDiffDate(i);
     let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
     let compStatus = STATUS.finish;
-    let taskName = sheet.getRange(i, DATA_START).getValue();
+    let taskName = sheet.getRange(i, DATA_START_COL).getValue();
     if(diffDate < 1 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground(colors.red);
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.red);
       warning.push(taskName);
     }else if(diffDate < 3 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground(colors.yellow);
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.yellow);
       attention.push(taskName);
     }else if(status == compStatus) {
-      sheet.getRange(i, DATA_START).setBackground(colors.gray);      
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.gray);      
     }  
   }
   return [warning, attention];
@@ -119,9 +122,10 @@ function deleteTask(lastRow, sheet) {
 }
 
 function setStatusColor(row, sheet) {
+  const TASK_COL = 3;
   let status = sheet.getRange(row, STATUS_COL).getValue();
   let lastCol = sheet.getLastColumn();
-  let setColorRange = sheet.getRange(row, DATA_START, 1, lastCol);
+  let setColorRange = sheet.getRange(row, TASK_COL, 1, lastCol);
     
   if (status == STATUS.unsupported) {
     setColorRange.setBackground(colors.white);
