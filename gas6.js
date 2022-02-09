@@ -1,7 +1,6 @@
 const TASK_SHEET = "プロジェクト_中村"; //onOpen
 const STATUS = {unsupported: "未対応", progress: "対応中", complete: "対応済み", finish: "完了"};
 const colors = {white: "#FFFFFF", green: "#d9ead3", blue: "#cfe2f3", gray: "#d9d9d9", red: "#F08080", yellow: "#FFFACD"};
-
 const IS_UPDATE_COL = 2; //onOpen
 const STATUS_COL = 8;
 const IS_DELETE_COL = 12; //onOpen
@@ -16,40 +15,6 @@ function getDiffDate(i){
   
   let diffDate = (date2 - today) / (60 * 60 * 24 * 1000);
   return diffDate;
-}
-
-function setMark(){
-  const DATA_START_COL = 3;
-  let sheet = getSheet(TASK_SHEET);
-  let lastRow = sheet.getLastRow();
-  let warning = [];
-  let attention = [];
-  
-  for(let i= DATA_START_COL; i <= lastRow; i++){
-    let diffDate = getDiffDate(i);
-    let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
-    let compStatus = STATUS.finish;
-    let taskName = sheet.getRange(i, DATA_START_COL).getValue();
-    if(diffDate < 1 && status != compStatus){
-      sheet.getRange(i, DATA_START_COL).setBackground(colors.red);
-      warning.push(taskName);
-    }else if(diffDate < 3 && status != compStatus){
-      sheet.getRange(i, DATA_START_COL).setBackground(colors.yellow);
-      attention.push(taskName);
-    }else if(status == compStatus) {
-      sheet.getRange(i, DATA_START_COL).setBackground(colors.gray);      
-    }  
-  }
-  return [warning, attention];
-}
-
-function createSlackMessage() {
-  notifications = setMark();
-  warningTasks = notifications[0].join("、");
-  attentionTasks = notifications[1].join("、");
-  message = `締め切りが過ぎているタスク： ${warningTasks}\n 締め切り間近なタスク： ${attentionTasks}`; 
-  
-  return message;
 }
 
 function getSheet(sheetName) {
@@ -163,6 +128,39 @@ function setCreator(createRow, sheet) {
   }
 }
 
+function setMark(){
+  const DATA_START_COL = 3;
+  let sheet = getSheet(TASK_SHEET);
+  let lastRow = sheet.getLastRow();
+  let warning = [];
+  let attention = [];
+  
+  for(let i= DATA_START_COL; i <= lastRow; i++){
+    let diffDate = getDiffDate(i);
+    let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
+    let compStatus = STATUS.finish;
+    let taskName = sheet.getRange(i, DATA_START_COL).getValue();
+    if(diffDate < 1 && status != compStatus){
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.red);
+      warning.push(taskName);
+    }else if(diffDate < 3 && status != compStatus){
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.yellow);
+      attention.push(taskName);
+    }else if(status == compStatus) {
+      sheet.getRange(i, DATA_START_COL).setBackground(colors.gray);      
+    }  
+  }
+  return [warning, attention];
+}
+
+function updateSheetInfo() {
+  let sheet = getSheet(TASK_SHEET); 
+  let lastRow = sheet.getLastRow();
+  deleteTask(lastRow, sheet);
+  updateTask(lastRow, sheet);
+  setMark();
+}
+
 function addTask() {
   const COMPLETE_DATE_COL = 6;
   const CREATE_DATE_COL = 10;
@@ -180,20 +178,21 @@ function addTask() {
   }
 }
 
-function updateSheetInfo() {
-  let sheet = getSheet(TASK_SHEET); 
-  let lastRow = sheet.getLastRow();
-  deleteTask(lastRow, sheet);
-  updateTask(lastRow, sheet);
-  setMark();
-}
-
 function onOpen() {
   const ui = SpreadsheetApp.getUi()
   const menu = ui.createMenu("メニュー");
   menu.addItem("更新","updateSheetInfo");
   menu.addItem("新規タスク作成","addTask");
   menu.addToUi();
+}
+
+function createSlackMessage() {
+  notifications = setMark();
+  warningTasks = notifications[0].join("、");
+  attentionTasks = notifications[1].join("、");
+  message = `締め切りが過ぎているタスク： ${warningTasks}\n 締め切り間近なタスク： ${attentionTasks}`; 
+  
+  return message;
 }
 
 function slack() {
