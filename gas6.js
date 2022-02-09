@@ -42,26 +42,7 @@ function getDiffDate(i){
   let diffDate = (date2 - today) / (60 * 60 * 24 * 1000);
   return diffDate;
 }
-// 以下修正前
-function setMark(){
-  let sheet = getSheet(TASK_SHEET);
-  lastRow = sheet.getLastRow();
-  for(let i= DATA_START; i <= lastRow; i++){
-    let diffDate = getDiffDate(i);
-    let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
-    let compStatus = STATUS[3];
-    if(diffDate < 1 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground("#FF3333");
-      let notification = 'attention'
-    }else if(diffDate < 3 && status != compStatus){
-      sheet.getRange(i, DATA_START).setBackground("#FFFF66");
-      let notification = 'warning'
-    }
-  }
-  return notification
-}
 
-// 以下修正後？
 function setMark(){
   let sheet = getSheet(TASK_SHEET);
   lastRow = sheet.getLastRow();
@@ -72,7 +53,6 @@ function setMark(){
     let status = sheet.getRange(i, STATUS_COL).getDisplayValue();
     let compStatus = STATUS[3];
     let taskName = sheet.getRange(i, DATA_START).getDisplayValue();
-    
     if(diffDate < 1 && status != compStatus){
       sheet.getRange(i, DATA_START).setBackground("#FF3333");
       warning.push(taskName)
@@ -98,7 +78,6 @@ function crateMessage() {
   notification[1] 
   return message
 }
-//修正案ここまで
 
 function getSheet(sheetName) {
   let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
